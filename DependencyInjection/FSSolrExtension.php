@@ -30,6 +30,11 @@ class FSSolrExtension extends Extension
             $container->setParameter('solr.auto_index', $config['auto_index']);
         }
 
+        if (!$container->hasParameter('solr.mapping_type')) {
+            $container->setParameter('solr.mapping_type', $config['mapping_type']);
+        }
+
+
         $this->setupDoctrineListener($config, $container);
         $this->setupDoctrineConfiguration($config, $container);
 

@@ -31,6 +31,17 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
             ->end()
+            ->scalarNode('mapping_type')
+                ->defaultValue('annotations')
+                ->validate()
+                    ->ifTrue(
+                        function($s) {
+                            return !in_array($s, ['annotations', 'yaml']);
+                        }
+                    )
+                    ->thenInvalid('mapping_type must be "annotations" or "yaml"')
+                    ->end()
+            ->end()
             ->booleanNode('auto_index')->defaultValue(true)->end()
         ->end();
 

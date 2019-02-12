@@ -2,6 +2,7 @@
 
 namespace FS\SolrBundle\Tests\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use FS\SolrBundle\DependencyInjection\FSSolrExtension;
@@ -44,7 +45,9 @@ class FSSolrExtensionTest extends \PHPUnit_Framework_TestCase
                     'port' => 8983,
                     'path' => '/solr/',
                 )
-            )
+            ),
+            'auto_index' => true,
+            'mapping_type' => 'annotations'
         ));
     }
 
@@ -76,6 +79,39 @@ class FSSolrExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertDefinitionHasTag('solr.document.odm.subscriber', 'doctrine_mongodb.odm.event_subscriber');
 
         $this->assertClassnameResolverHasOdmDefaultConfiguration();
+    }
+
+    public function testGlobalConfig()
+    {
+        $config = $this->commonConfig();
+        $extension = new FSSolrExtension();
+        $extension->load($config, $this->container);
+
+        $this->assertTrue($this->container->getParameter('solr.auto_index'));
+        $this->assertSame('annotations', $this->container->getParameter('solr.mapping_type'));
+    }
+
+
+    public function testYamlMappingTypeConfig()
+    {
+        $extension = new FSSolrExtension();
+
+        $config = $this->commonConfig();
+        $config['fs_solr']['mapping_type'] = 'yaml';
+        $extension->load($config, $this->container);
+
+        $this->assertSame('yaml', $this->container->getParameter('solr.mapping_type'));
+    }
+
+    public function testInvalidMappingTypeConfig()
+    {
+        $extension = new FSSolrExtension();
+
+        $config = $this->commonConfig();
+        $config['fs_solr']['mapping_type'] = 'invalid_mapping_type';
+
+        $this->expectException(InvalidConfigurationException::class);
+        $extension->load($config, $this->container);
     }
 
     /**
