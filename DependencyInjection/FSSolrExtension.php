@@ -2,6 +2,7 @@
 
 namespace FS\SolrBundle\DependencyInjection;
 
+use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
@@ -89,30 +90,35 @@ class FSSolrExtension extends Extension
 
     private  function setupMapperDriverConfiguration(array $config, ContainerBuilder $container)
     {
-        if (!$container->hasParameter('solr.mapper_driver.service')) {
-            switch ($config['mapper_driver']) {
-                case 'yaml':
-                    $container->setParameter('solr.mapper_driver.service', 'solr.doctrine.mapper.driver.yaml');
-                    break;
-                case 'annotations':
-                    $container->setParameter('solr.mapper_driver.service', 'solr.doctrine.mapper.driver.annotations');
-                    break;
-                default:
-                    $container->setParameter('solr.mapper_driver.service', $config['mapper_driver']);
-            }
-        }
+        $alias = new Alias('solr.mapper_driver');
 
+
+        switch ($config['mapper_driver']) {
+            case 'yaml':
+                $container->setAlias($alias, 'solr.doctrine.mapper.driver.yaml');
+                $this->setupYamlMapperDriver($config, $container);
+                break;
+            case 'annotations':
+                $container->setAlias($alias, 'solr.doctrine.mapper.driver.annotations');
+                break;
+            default:
+                $container->setAlias($alias, $config['mapper_driver']);
+        }
+    }
+
+    protected function setupYamlMapperDriver(array $config, ContainerBuilder $container)
+    {
         $yamlDriverDefinition = $container->getDefinition('solr.doctrine.mapper.driver.yaml');
 
-        $bundles = $container->get('kernel')->getBundles();
+        $parameters = $container->getParameterBag()->all();
 
         $namespaces = [];
-        foreach ($container->get('kernel')->getBundles() as $bundle) {
-            $path = $bundle->getPath() . $this->getMappingResourceConfigDirectory();
-            $namespace = $bundle->getNamespace() . '\Entity';
+        foreach ($container->getParameter('kernel.bundles_metadata') as $bundletName => $properties) {
+            $path = $properties['path'] . $this->getMappingResourceConfigDirectory();
+            $namespace = $properties['namespace'] . '\Entity';
             $namespaces[$path] = $namespace;
         }
-
+        
         $yamlDriverDefinition->setArgument(0, $namespaces);
     }
 
@@ -163,6 +169,6 @@ class FSSolrExtension extends Extension
 
     public function getMappingResourceConfigDirectory()
     {
-        return 'Resources/config/solr';
+        return '/Resources/config/solr';
     }
 }

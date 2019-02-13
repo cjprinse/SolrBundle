@@ -33,6 +33,8 @@ class YamlDriver implements DriverInterface
      */
     public function hasDocumentDeclaration($entity)
     {
+        $mappingFile = $this->locator->findMappingFile(get_class($entity));
+        $a = 1;
         // TODO: Implement hasDocumentDeclaration() method.
     }
 

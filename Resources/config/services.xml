@@ -47,7 +47,7 @@
         </service>
 
         <service id="solr.meta.information.factory" class="FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory" public="true">
-            <argument type="service" id="%solr.mapper_driver.service%" />
+            <argument type="service" id="solr.mapper_driver" />
         </service>
 
         <service id="solr.doctrine.classnameresolver.known_entity_namespaces" class="FS\SolrBundle\Doctrine\ClassnameResolver\KnownNamespaceAliases" public="true"/>
