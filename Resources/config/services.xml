@@ -89,6 +89,10 @@
             <argument id="annotation_reader" type="service"/>
         </service>
 
+        <service id="solr.doctrine.mapper.file_locator" class="Doctrine\Common\Persistence\Mapping\Driver\DefaultFileLocator">
+
+        </service>
+
         <service id="solr.doctrine.mapper.driver.annotations" class="FS\SolrBundle\Doctrine\Mapper\Driver\AnnotationsDriver">
             <argument id="annotation_reader" type="service"/>
         </service>

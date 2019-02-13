@@ -30,22 +30,10 @@ class FSSolrExtension extends Extension
             $container->setParameter('solr.auto_index', $config['auto_index']);
         }
 
-        if (!$container->hasParameter('solr.mapper_driver.service')) {
-            switch ($config['mapper_driver']) {
-                case 'yaml':
-                    $container->setParameter('solr.mapper_driver.service', 'solr.doctrine.mapper.driver.yaml');
-                    break;
-                case 'annotations':
-                    $container->setParameter('solr.mapper_driver.service', 'solr.doctrine.mapper.driver.annotations');
-                    break;
-                default:
-                    $container->setParameter('solr.mapper_driver.service', $config['mapper_driver']);
-            }
-        }
-
 
         $this->setupDoctrineListener($config, $container);
         $this->setupDoctrineConfiguration($config, $container);
+        $this->setupMapperDriverConfiguration($config, $container);
 
     }
 
@@ -99,6 +87,35 @@ class FSSolrExtension extends Extension
         );
     }
 
+    private  function setupMapperDriverConfiguration(array $config, ContainerBuilder $container)
+    {
+        if (!$container->hasParameter('solr.mapper_driver.service')) {
+            switch ($config['mapper_driver']) {
+                case 'yaml':
+                    $container->setParameter('solr.mapper_driver.service', 'solr.doctrine.mapper.driver.yaml');
+                    break;
+                case 'annotations':
+                    $container->setParameter('solr.mapper_driver.service', 'solr.doctrine.mapper.driver.annotations');
+                    break;
+                default:
+                    $container->setParameter('solr.mapper_driver.service', $config['mapper_driver']);
+            }
+        }
+
+        $yamlDriverDefinition = $container->getDefinition('solr.doctrine.mapper.driver.yaml');
+
+        $bundles = $container->get('kernel')->getBundles();
+
+        $namespaces = [];
+        foreach ($container->get('kernel')->getBundles() as $bundle) {
+            $path = $bundle->getPath() . $this->getMappingResourceConfigDirectory();
+            $namespace = $bundle->getNamespace() . '\Entity';
+            $namespaces[$path] = $namespace;
+        }
+
+        $yamlDriverDefinition->setArgument(0, $namespaces);
+    }
+
     /**
      * doctrine_orm and doctrine_mongoDB can't be used together. mongo_db wins when it is configured.
      *
@@ -142,5 +159,10 @@ class FSSolrExtension extends Extension
     private function isOrmConfigured(ContainerBuilder $container)
     {
         return $container->hasParameter('doctrine.entity_managers');
+    }
+
+    public function getMappingResourceConfigDirectory()
+    {
+        return 'Resources/config/solr';
     }
 }
