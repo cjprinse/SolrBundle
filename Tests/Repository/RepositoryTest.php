@@ -4,6 +4,7 @@ namespace FS\SolrBundle\Tests\Solr\Repository;
 
 use FS\SolrBundle\Doctrine\Annotation\AnnotationReader;
 use FS\SolrBundle\Doctrine\Hydration\HydrationModes;
+use FS\SolrBundle\Doctrine\Mapper\Driver\AnnotationsDriver;
 use FS\SolrBundle\Doctrine\Mapper\EntityMapper;
 use FS\SolrBundle\Doctrine\Mapper\EntityMapperInterface;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory;
@@ -33,7 +34,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->metaInformationFactory = new MetaInformationFactory($reader = new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader()));
+        $this->metaInformationFactory = new MetaInformationFactory(new AnnotationsDriver($reader = new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader())));
         $this->mapper = $this->createMock(EntityMapperInterface::class);
         $this->mapper->expects($this->once())
             ->method('setHydrationMode')

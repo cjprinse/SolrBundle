@@ -13,6 +13,7 @@ use FS\SolrBundle\Doctrine\Hydration\HydratorInterface;
 use FS\SolrBundle\Doctrine\Hydration\IndexHydrator;
 use FS\SolrBundle\Doctrine\Hydration\NoDatabaseValueHydrator;
 use FS\SolrBundle\Doctrine\Hydration\ValueHydrator;
+use FS\SolrBundle\Doctrine\Mapper\Driver\AnnotationsDriver;
 use FS\SolrBundle\Doctrine\Mapper\EntityMapper;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory;
 use FS\SolrBundle\Doctrine\Annotation\Field;
@@ -49,7 +50,7 @@ class EntityMapperTest extends \PHPUnit_Framework_TestCase
     {
         $this->doctrineHydrator = $this->createMock(HydratorInterface::class);
         $this->indexHydrator = $this->createMock(HydratorInterface::class);
-        $this->metaInformationFactory = new MetaInformationFactory(new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader()));
+        $this->metaInformationFactory = new MetaInformationFactory(new AnnotationsDriver(new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader())));
 
         $this->mapper = new EntityMapper($this->doctrineHydrator, $this->indexHydrator, $this->metaInformationFactory);
     }

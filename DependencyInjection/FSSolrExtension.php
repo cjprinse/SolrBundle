@@ -30,8 +30,17 @@ class FSSolrExtension extends Extension
             $container->setParameter('solr.auto_index', $config['auto_index']);
         }
 
-        if (!$container->hasParameter('solr.mapping_type')) {
-            $container->setParameter('solr.mapping_type', $config['mapping_type']);
+        if (!$container->hasParameter('solr.mapper_driver.service')) {
+            switch ($config['mapper_driver']) {
+                case 'yaml':
+                    $container->setParameter('solr.mapper_driver.service', 'solr.doctrine.mapper.driver.yaml');
+                    break;
+                case 'annotations':
+                    $container->setParameter('solr.mapper_driver.service', 'solr.doctrine.mapper.driver.annotations');
+                    break;
+                default:
+                    $container->setParameter('solr.mapper_driver.service', $config['mapper_driver']);
+            }
         }
 
 

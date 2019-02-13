@@ -47,7 +47,7 @@ class FSSolrExtensionTest extends \PHPUnit_Framework_TestCase
                 )
             ),
             'auto_index' => true,
-            'mapping_type' => 'annotations'
+            'mapper_driver' => 'annotations'
         ));
     }
 
@@ -88,30 +88,19 @@ class FSSolrExtensionTest extends \PHPUnit_Framework_TestCase
         $extension->load($config, $this->container);
 
         $this->assertTrue($this->container->getParameter('solr.auto_index'));
-        $this->assertSame('annotations', $this->container->getParameter('solr.mapping_type'));
+        $this->assertSame('solr.doctrine.mapper.driver.annotations', $this->container->getParameter('solr.mapper_driver.service'));
     }
 
 
-    public function testYamlMappingTypeConfig()
+    public function testYamlMapperDriverConfig()
     {
         $extension = new FSSolrExtension();
 
         $config = $this->commonConfig();
-        $config['fs_solr']['mapping_type'] = 'yaml';
+        $config['fs_solr']['mapper_driver'] = 'yaml';
         $extension->load($config, $this->container);
 
-        $this->assertSame('yaml', $this->container->getParameter('solr.mapping_type'));
-    }
-
-    public function testInvalidMappingTypeConfig()
-    {
-        $extension = new FSSolrExtension();
-
-        $config = $this->commonConfig();
-        $config['fs_solr']['mapping_type'] = 'invalid_mapping_type';
-
-        $this->expectException(InvalidConfigurationException::class);
-        $extension->load($config, $this->container);
+        $this->assertSame('solr.doctrine.mapper.driver.yaml', $this->container->getParameter('solr.mapper_driver.service'));
     }
 
     /**

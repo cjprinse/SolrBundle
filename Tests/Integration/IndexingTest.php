@@ -11,6 +11,7 @@ use FS\SolrBundle\Doctrine\Annotation\AnnotationReader;
 use FS\SolrBundle\Doctrine\Hydration\DoctrineHydrator;
 use FS\SolrBundle\Doctrine\Hydration\IndexHydrator;
 use FS\SolrBundle\Doctrine\Hydration\ValueHydrator;
+use FS\SolrBundle\Doctrine\Mapper\Driver\AnnotationsDriver;
 use FS\SolrBundle\Doctrine\Mapper\EntityMapper;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory;
 use FS\SolrBundle\Doctrine\ORM\Listener\EntityIndexerSubscriber;
@@ -57,7 +58,7 @@ class IndexingTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $metainformationFactory = new MetaInformationFactory(new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader()));
+        $metainformationFactory = new MetaInformationFactory(new AnnotationsDriver(new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader())));
         $logger = $this->createMock(LoggerInterface::class);
 
         $this->solr = new Solr(

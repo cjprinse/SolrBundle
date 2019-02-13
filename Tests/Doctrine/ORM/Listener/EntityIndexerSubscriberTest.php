@@ -9,6 +9,7 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;
 use FS\SolrBundle\Doctrine\Annotation\AnnotationReader;
+use FS\SolrBundle\Doctrine\Mapper\Driver\AnnotationsDriver;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory;
 use FS\SolrBundle\Doctrine\ORM\Listener\EntityIndexerSubscriber;
 use FS\SolrBundle\SolrInterface;
@@ -35,7 +36,7 @@ class EntityIndexerSubscriberTest extends \PHPUnit_Framework_TestCase
     {
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->solr = $this->createMock(SolrInterface::class);
-        $this->metaInformationFactory = new MetaInformationFactory(new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader()));
+        $this->metaInformationFactory = new MetaInformationFactory(new AnnotationsDriver(new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader())));
 
         $this->subscriber = new EntityIndexerSubscriber($this->solr, $this->metaInformationFactory, $this->logger);
     }

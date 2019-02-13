@@ -1,7 +1,7 @@
 <?php
 namespace FS\SolrBundle\Doctrine\Mapper;
 
-use FS\SolrBundle\Doctrine\Annotation\AnnotationReader;
+use FS\SolrBundle\Doctrine\Mapper\Driver\DriverInterface;
 use FS\SolrBundle\Doctrine\ClassnameResolver\ClassnameResolver;
 
 /**
@@ -10,9 +10,9 @@ use FS\SolrBundle\Doctrine\ClassnameResolver\ClassnameResolver;
 class MetaInformationFactory
 {
     /**
-     * @var AnnotationReader
+     * @var DriverInterface
      */
-    private $annotationReader = null;
+    private $mapperDriver = null;
 
     /**
      * @var ClassnameResolver
@@ -20,11 +20,11 @@ class MetaInformationFactory
     private $classnameResolver = null;
 
     /**
-     * @param AnnotationReader $reader
+     * @param DriverInterface $mapperDriver
      */
-    public function __construct(AnnotationReader $reader)
+    public function __construct(DriverInterface $mapperDriver)
     {
-        $this->annotationReader = $reader;
+        $this->mapperDriver = $mapperDriver;
     }
 
     /**
@@ -54,28 +54,28 @@ class MetaInformationFactory
             $entity = $reflectionClass->newInstanceWithoutConstructor();
         }
 
-        if (!$this->annotationReader->hasDocumentDeclaration($entity)) {
+        if (!$this->mapperDriver->hasDocumentDeclaration($entity)) {
             throw new SolrMappingException(sprintf('no declaration for document found in entity %s', $className));
         }
 
-        $fields = array_merge($this->annotationReader->getFields($entity), $this->annotationReader->getMethods($entity));
+        $fields = array_merge($this->mapperDriver->getFields($entity), $this->mapperDriver->getMethods($entity));
 
         $metaInformation = new MetaInformation();
         $metaInformation->setEntity($entity);
         $metaInformation->setClassName($className);
         $metaInformation->setDocumentName($this->getDocumentName($className));
-        $metaInformation->setFieldMapping($this->annotationReader->getFieldMapping($entity));
+        $metaInformation->setFieldMapping($this->mapperDriver->getFieldMapping($entity));
         $metaInformation->setFields($fields);
-        $metaInformation->setRepository($this->annotationReader->getRepository($entity));
-        $metaInformation->setIdentifier($this->annotationReader->getIdentifier($entity));
-        $metaInformation->setBoost($this->annotationReader->getEntityBoost($entity));
-        $metaInformation->setSynchronizationCallback($this->annotationReader->getSynchronizationCallback($entity));
-        $metaInformation->setIndex($this->annotationReader->getDocumentIndex($entity));
+        $metaInformation->setRepository($this->mapperDriver->getRepository($entity));
+        $metaInformation->setIdentifier($this->mapperDriver->getIdentifier($entity));
+        $metaInformation->setBoost($this->mapperDriver->getEntityBoost($entity));
+        $metaInformation->setSynchronizationCallback($this->mapperDriver->getSynchronizationCallback($entity));
+        $metaInformation->setIndex($this->mapperDriver->getDocumentIndex($entity));
         $metaInformation->setIsDoctrineEntity($this->isDoctrineEntity($entity));
         $metaInformation->setDoctrineMapperType($this->getDoctrineMapperType($entity));
-        $metaInformation->setNested($this->annotationReader->isNested($entity));
+        $metaInformation->setNested($this->mapperDriver->isNested($entity));
 
-        $fields = $this->annotationReader->getFields($entity);
+        $fields = $this->mapperDriver->getFields($entity);
         foreach ($fields as $field) {
             if (!$field->nestedClass) {
                 continue;
@@ -105,7 +105,7 @@ class MetaInformationFactory
      */
     private function isDoctrineEntity($entity)
     {
-        if ($this->annotationReader->isOrm($entity) || $this->annotationReader->isOdm($entity)) {
+        if ($this->mapperDriver->isOrm($entity) || $this->mapperDriver->isOdm($entity)) {
             return true;
         }
 
@@ -123,11 +123,11 @@ class MetaInformationFactory
             return '';
         }
 
-        if ($this->annotationReader->isOdm($entity)) {
+        if ($this->mapperDriver->isOdm($entity)) {
             return MetaInformationInterface::DOCTRINE_MAPPER_TYPE_DOCUMENT;
         }
 
-        if ($this->annotationReader->isOrm($entity)) {
+        if ($this->mapperDriver->isOrm($entity)) {
             return MetaInformationInterface::DOCTRINE_MAPPER_TYPE_RELATIONAL;
         }
     }

@@ -5,6 +5,7 @@ use FS\SolrBundle\Doctrine\Annotation\AnnotationReader;
 use FS\SolrBundle\Doctrine\Annotation\Field;
 use FS\SolrBundle\Doctrine\ClassnameResolver\ClassnameResolver;
 use FS\SolrBundle\Doctrine\ClassnameResolver\ClassnameResolverException;
+use FS\SolrBundle\Doctrine\Mapper\Driver\AnnotationsDriver;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformation;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformationInterface;
@@ -21,13 +22,13 @@ use FS\SolrBundle\Tests\Fixtures\ValidTestEntity;
 class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var AnnotationReader
+     * @var AnnotationsDriver
      */
-    private $reader;
+    protected $driver;
 
     public function setUp()
     {
-        $this->reader = new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader());
+        $this->driver = new AnnotationsDriver(new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader()));
     }
 
     private function getClassnameResolver($namespace)
@@ -59,7 +60,7 @@ class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
 
         $classnameResolver = $this->getClassnameResolver(ValidTestEntity::class);
 
-        $factory = new MetaInformationFactory($this->reader);
+        $factory = new MetaInformationFactory($this->driver);
         $factory->setClassnameResolver($classnameResolver);
         $actual = $factory->loadInformation('FSBlogBundle:ValidTestEntity');
 
@@ -79,7 +80,7 @@ class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
 
         $doctrineConfiguration = $this->getClassnameResolver(ValidTestEntity::class);
 
-        $factory = new MetaInformationFactory($this->reader);
+        $factory = new MetaInformationFactory($this->driver);
         $factory->setClassnameResolver($doctrineConfiguration);
         $actual = $factory->loadInformation($testEntity);
 
@@ -102,7 +103,7 @@ class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $doctrineConfiguration = $this->getClassnameResolver(NotIndexedEntity::class);
 
-        $factory = new MetaInformationFactory($this->reader);
+        $factory = new MetaInformationFactory($this->driver);
         $factory->setClassnameResolver($doctrineConfiguration);
         $factory->loadInformation('FSBlogBundle:NotIndexedEntity');
     }
@@ -115,7 +116,7 @@ class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $doctrineConfiguration = $this->getClassnameResolverCouldNotResolveClassname();
 
-        $factory = new MetaInformationFactory($this->reader);
+        $factory = new MetaInformationFactory($this->driver);
         $factory->setClassnameResolver($doctrineConfiguration);
         $factory->loadInformation('FSBlogBundle:UnknownEntity');
     }
@@ -124,7 +125,7 @@ class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $doctrineConfiguration = $this->getClassnameResolver(ValidTestEntity::class);
 
-        $factory = new MetaInformationFactory($this->reader);
+        $factory = new MetaInformationFactory($this->driver);
         $factory->setClassnameResolver($doctrineConfiguration);
 
         $testEntity = new ValidTestEntity();
@@ -138,7 +139,7 @@ class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $doctrineConfiguration = $this->getClassnameResolver(ValidTestEntity::class);
 
-        $factory = new MetaInformationFactory($this->reader);
+        $factory = new MetaInformationFactory($this->driver);
         $factory->setClassnameResolver($doctrineConfiguration);
 
         $entityClassname = get_class(new ValidTestEntity());
@@ -153,7 +154,7 @@ class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function determineDoctrineMapperTypeFromEntity()
     {
-        $factory = new MetaInformationFactory($this->reader);
+        $factory = new MetaInformationFactory($this->driver);
         $metainformation = $factory->loadInformation(new ValidTestEntity());
 
         $this->assertEquals(MetaInformationInterface::DOCTRINE_MAPPER_TYPE_RELATIONAL, $metainformation->getDoctrineMapperType());
@@ -164,7 +165,7 @@ class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function determineDoctrineMapperTypeFromDocument()
     {
-        $factory = new MetaInformationFactory($this->reader);
+        $factory = new MetaInformationFactory($this->driver);
         $metainformation = $factory->loadInformation(new ValidOdmTestDocument());
 
         $this->assertEquals(MetaInformationInterface::DOCTRINE_MAPPER_TYPE_DOCUMENT, $metainformation->getDoctrineMapperType());
@@ -175,7 +176,7 @@ class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function useCachedEntityInstanceIfItIsSet()
     {
-        $factory = new MetaInformationFactory($this->reader);
+        $factory = new MetaInformationFactory($this->driver);
         $metainformation1 = $factory->loadInformation(new ValidTestEntity());
         $metainformation2 = $factory->loadInformation(new ValidTestEntity());
 
@@ -193,7 +194,7 @@ class MetaInformationFactoryTest extends \PHPUnit_Framework_TestCase
         $nested2 = new NestedEntity();
         $entity->setCollection([$nested1, $nested2]);
 
-        $factory = new MetaInformationFactory($this->reader);
+        $factory = new MetaInformationFactory($this->driver);
         $metainformation = $factory->loadInformation($entity);
 
         $this->assertArrayNotHasKey('collection', $metainformation->getFieldMapping());

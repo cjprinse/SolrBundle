@@ -7,11 +7,12 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\Common\Persistence\ObjectRepository;
 use FS\SolrBundle\Doctrine\Annotation\AnnotationReader;
-use FS\SolrBundle\Doctrine\Annotation\Field;
 use FS\SolrBundle\Doctrine\Hydration\DoctrineHydrator;
 use FS\SolrBundle\Doctrine\Hydration\DoctrineHydratorInterface;
 use FS\SolrBundle\Doctrine\Hydration\DoctrineValueHydrator;
 use FS\SolrBundle\Doctrine\Hydration\ValueHydrator;
+use FS\SolrBundle\Doctrine\Mapper\Driver\AnnotationsDriver;
+use FS\SolrBundle\Doctrine\Mapper\Driver\DriverInterface;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformation;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformationInterface;
@@ -27,13 +28,13 @@ class DoctrineHydratorTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @var AnnotationReader
+     * @var DriverInterface
      */
-    private $reader;
+    private $driver;
 
     public function setUp()
     {
-        $this->reader = new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader());
+        $this->driver = new AnnotationsDriver(new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader()));
     }
 
     /**
@@ -52,7 +53,7 @@ class DoctrineHydratorTest extends \PHPUnit_Framework_TestCase
         $entity = new ValidTestEntity();
         $entity->setId(1);
 
-        $metainformations = new MetaInformationFactory($this->reader);
+        $metainformations = new MetaInformationFactory($this->driver);
         $metainformations = $metainformations->loadInformation($entity);
 
         $ormManager = $this->setupManager($metainformations, $repository);
@@ -82,7 +83,7 @@ class DoctrineHydratorTest extends \PHPUnit_Framework_TestCase
         $entity = new ValidOdmTestDocument();
         $entity->setId(1);
 
-        $metainformations = new MetaInformationFactory($this->reader);
+        $metainformations = new MetaInformationFactory($this->driver);
         $metainformations = $metainformations->loadInformation($entity);
 
         $ormManager = $this->createMock(ObjectManager::class);
@@ -117,7 +118,7 @@ class DoctrineHydratorTest extends \PHPUnit_Framework_TestCase
         $targetEntity->setId(1);
         $targetEntity->setPosts($relations);
 
-        $metainformations = new MetaInformationFactory($this->reader);
+        $metainformations = new MetaInformationFactory($this->driver);
         $metainformations = $metainformations->loadInformation($targetEntity);
 
         $repository = $this->createMock(ObjectRepository::class);
@@ -156,7 +157,7 @@ class DoctrineHydratorTest extends \PHPUnit_Framework_TestCase
         $entity = new ValidTestEntity();
         $entity->setId(1);
 
-        $metainformations = new MetaInformationFactory($this->reader);
+        $metainformations = new MetaInformationFactory($this->driver);
         $metainformations = $metainformations->loadInformation($entity);
 
         $ormManager = $this->setupManager($metainformations, $repository);
@@ -208,4 +209,3 @@ class DoctrineHydratorTest extends \PHPUnit_Framework_TestCase
     }
 
 }
- 

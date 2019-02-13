@@ -47,7 +47,7 @@
         </service>
 
         <service id="solr.meta.information.factory" class="FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory" public="true">
-            <argument type="service" id="solr.doctrine.annotation.annotation_reader" />
+            <argument type="service" id="%solr.mapper_driver.service%" />
         </service>
 
         <service id="solr.doctrine.classnameresolver.known_entity_namespaces" class="FS\SolrBundle\Doctrine\ClassnameResolver\KnownNamespaceAliases" public="true"/>
@@ -88,6 +88,12 @@
         <service id="solr.doctrine.annotation.annotation_reader" class="FS\SolrBundle\Doctrine\Annotation\AnnotationReader">
             <argument id="annotation_reader" type="service"/>
         </service>
+
+        <service id="solr.doctrine.mapper.driver.annotations" class="FS\SolrBundle\Doctrine\Mapper\Driver\AnnotationsDriver">
+            <argument id="annotation_reader" type="service"/>
+        </service>
+
+        <service id="solr.doctrine.mapper.driver.yaml" class="FS\SolrBundle\Doctrine\Mapper\Driver\YamlDriver"></service>
 
         <service id="solr.command.clear_index_command" class="FS\SolrBundle\Command\ClearIndexCommand">
             <tag name="console.command"/>

@@ -5,6 +5,7 @@ namespace FS\SolrBundle\Tests;
 
 
 use FS\SolrBundle\Doctrine\Annotation\AnnotationReader;
+use FS\SolrBundle\Doctrine\Mapper\Driver\AnnotationsDriver;
 use FS\SolrBundle\Doctrine\Mapper\EntityMapperInterface;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory;
 use FS\SolrBundle\Solr;
@@ -32,7 +33,7 @@ abstract class AbstractSolrTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->metaFactory = new MetaInformationFactory(new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader()));
+        $this->metaFactory = new MetaInformationFactory(new AnnotationsDriver(new AnnotationReader(new \Doctrine\Common\Annotations\AnnotationReader())));
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->mapper = $this->getMockBuilder(EntityMapperInterface::class)
             ->disableOriginalConstructor()
