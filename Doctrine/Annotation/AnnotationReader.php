@@ -184,6 +184,19 @@ class AnnotationReader
         return reset($id);
     }
 
+    public function getIdentifierFields($entity)
+    {
+        $ids = $this->getPropertiesByType($entity, self::FIELD_IDENTIFIER_CLASS);
+
+        if (count($ids) == 0) {
+            throw new AnnotationReaderException('no identifer declared in entity ' . get_class($entity));
+        }
+
+        return array_map(function ($annotation) {
+            return $annotation->name;
+        }, $ids);
+    }
+
     /**
      * @param object $entity
      *

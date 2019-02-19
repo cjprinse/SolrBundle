@@ -9,6 +9,8 @@ use FS\SolrBundle\Doctrine\Mapper\MetaInformationInterface;
 use FS\SolrBundle\Doctrine\Mapper\SolrMappingException;
 use Ramsey\Uuid\Uuid;
 use Solarium\QueryType\Update\Query\Document\Document;
+use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
 
 class DocumentFactory
 {
@@ -17,35 +19,41 @@ class DocumentFactory
      */
     private $metaInformationFactory;
 
+    /** @var PropertyAccessor */
+    protected $propertyAccessor;
+
     /**
      * @param MetaInformationFactory $metaInformationFactory
      */
     public function __construct(MetaInformationFactory $metaInformationFactory)
     {
         $this->metaInformationFactory = $metaInformationFactory;
+        $this->propertyAccessor = PropertyAccess::createPropertyAccessor();
     }
 
     /**
      * @param MetaInformationInterface $metaInformation
+     * @param object $entity
      *
      * @return null|Document
      *
      * @throws SolrMappingException if no id is set
      */
-    public function createDocument(MetaInformationInterface $metaInformation)
+    public function createDocument(MetaInformationInterface $metaInformation, object $entity)
     {
         $fields = $metaInformation->getFields();
         if (count($fields) == 0) {
             return null;
         }
 
-        if (!$metaInformation->getEntityId() && !$metaInformation->generateDocumentId()) {
+        if (empty($metaInformation->getIdentifierFields())) {
             throw new SolrMappingException(sprintf('No entity id set for "%s"', $metaInformation->getClassName()));
         }
 
-        $documentId = $metaInformation->getDocumentKey();
-        if ($metaInformation->generateDocumentId()) {
+        if ($metaInformation->getAutoGenerateId()) {
             $documentId = $metaInformation->getDocumentName() . '_' . Uuid::uuid1()->toString();
+        } else {
+            $documentId = $this->getDocumentId($metaInformation, $entity);
         }
 
         $document = new Document();
@@ -58,7 +66,7 @@ class DocumentFactory
                 continue;
             }
 
-            $fieldValue = $field->getValue();
+            $fieldValue = $this->propertyAccessor->getValue($entity, $field->name);
             if (($fieldValue instanceof Collection || is_array($fieldValue)) && $field->nestedClass) {
                 $this->mapCollectionField($document, $field, $metaInformation->getEntity());
             } else if (is_object($fieldValue) && $field->nestedClass) { // index sinsgle object as nested child-document
@@ -78,6 +86,21 @@ class DocumentFactory
         }
 
         return $document;
+    }
+
+    /**
+     * @param MetaInformationInterface $metaInformation
+     * @param object $entity
+     * @return string
+     */
+    protected function getDocumentId(MetaInformationInterface $metaInformation, object $entity)
+    {
+        $idParts = [];
+        foreach($metaInformation->getIdentifierFields() as $field) {
+            $idParts[] = $this->propertyAccessor->getValue($entity, $field);
+        }
+
+        return implode('_', $idParts);
     }
 
     /**

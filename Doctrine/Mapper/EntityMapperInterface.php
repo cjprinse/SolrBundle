@@ -11,10 +11,11 @@ interface EntityMapperInterface
 
     /**
      * @param MetaInformationInterface $metaInformation
+     * @param object $entity
      *
      * @return Document
      */
-    public function toDocument(MetaInformationInterface $metaInformation);
+    public function toDocument(MetaInformationInterface $metaInformation, object $entity);
 
     /**
      * @param \ArrayAccess  $document

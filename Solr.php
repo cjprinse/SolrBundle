@@ -219,7 +219,7 @@ class Solr implements SolrInterface
         $event = new Event($this->solrClientCore, $metaInformation);
         $this->eventManager->dispatch(Events::PRE_INSERT, $event);
 
-        $doc = $this->toDocument($metaInformation);
+        $doc = $this->toDocument($metaInformation, $entity);
 
         $this->addDocumentToIndex($doc, $metaInformation, $event);
 
@@ -392,12 +392,13 @@ class Solr implements SolrInterface
 
     /**
      * @param MetaInformationInterface $metaInformation
+     * @param object $entity
      *
      * @return DocumentInterface
      */
-    private function toDocument(MetaInformationInterface $metaInformation): DocumentInterface
+    private function toDocument(MetaInformationInterface $metaInformation, object $entity): DocumentInterface
     {
-        $doc = $this->entityMapper->toDocument($metaInformation);
+        $doc = $this->entityMapper->toDocument($metaInformation, $entity);
 
         return $doc;
     }

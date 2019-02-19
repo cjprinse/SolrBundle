@@ -115,7 +115,7 @@ class FSSolrExtension extends Extension
         $namespaces = [];
         foreach ($container->getParameter('kernel.bundles_metadata') as $bundletName => $properties) {
             $path = $properties['path'] . $this->getMappingResourceConfigDirectory();
-            $namespace = $properties['namespace'] . '\Entity';
+            $namespace = $properties['namespace'];
             $namespaces[$path] = $namespace;
         }
         

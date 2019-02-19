@@ -23,6 +23,11 @@ class Field extends Annotation
     public $name;
 
     /**
+     * @var string|null
+     */
+    public $fieldName;
+
+    /**
      * @var float
      */
     public $boost = 0;
@@ -77,6 +82,12 @@ class Field extends Annotation
         'strings' => '_ss',
     );
 
+
+    public function getFieldName()
+    {
+        $this->fieldName;
+    }
+
     /**
      * returns field name with type-suffix:
      *
@@ -88,6 +99,10 @@ class Field extends Annotation
      */
     public function getNameWithAlias()
     {
+        if ($this->fieldName) {
+            return $this->fieldName;
+        }
+
         return $this->normalizeName($this->name) . $this->getTypeSuffix($this->type);
     }
 

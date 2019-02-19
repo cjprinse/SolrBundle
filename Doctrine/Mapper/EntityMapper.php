@@ -53,9 +53,9 @@ class EntityMapper implements EntityMapperInterface
     /**
      * {@inheritdoc}
      */
-    public function toDocument(MetaInformationInterface $metaInformation)
+    public function toDocument(MetaInformationInterface $metaInformation, object $entity)
     {
-        return $this->documentFactory->createDocument($metaInformation);
+        return $this->documentFactory->createDocument($metaInformation, $entity);
     }
 
     /**

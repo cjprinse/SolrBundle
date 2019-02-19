@@ -37,13 +37,6 @@ interface MetaInformationInterface
     public function getIdentifier();
 
     /**
-     * Generated custom document-id. Can be use if doctrine is not used.
-     *
-     * @return bool
-     */
-    public function generateDocumentId();
-
-    /**
      * Returns full qualified classname
      *
      * @return string
@@ -77,6 +70,16 @@ interface MetaInformationInterface
      * @return object
      */
     public function getEntity();
+
+    /**
+     * @param bool $autogenerate
+     */
+    public function setAutoGenerateId(bool $autogenerate);
+
+    /**
+     * @return bool
+     */
+    public function getAutoGenerateId();
 
     /**
      * @param string $fieldName
@@ -118,17 +121,13 @@ interface MetaInformationInterface
 
     /**
      * Returns combination of DOCUMENT_KEY_FIELD_NAME and entity-id
+     * @param $entity
      *
      * @return string
      */
-    public function getDocumentKey();
+    public function getDocumentKey(object $entity);
 
-    /**
-     * The property which has the FS\SolrBundle\Doctrine\Annotation\Id annotation
-     *
-     * @return string
-     */
-    public function getIdentifierFieldName();
+
 
     /**
      * Returns MetaInformationInterface::DOCTRINE_MAPPER_TYPE_DOCUMENT if target is an doctrine-odm object or

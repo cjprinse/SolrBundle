@@ -11,9 +11,12 @@ class MetaInformation implements MetaInformationInterface
 {
 
     /**
-     * @var Id
+     * @var string[]
      */
-    private $identifier = '';
+    private $identifierFields = [];
+
+    /** @var bool */
+    private $autoGenerateId = false;
 
     /**
      * @var string
@@ -151,9 +154,17 @@ class MetaInformation implements MetaInformationInterface
     /**
      * @param Id $identifier
      */
-    public function setIdentifier($identifier)
+    public function setIdentifierFields(array $fields)
     {
-        $this->identifier = $identifier;
+        $this->identifierFields = $fields;
+    }
+
+    /**
+     * @param bool $autogenerate
+     */
+    public function autoGenerateId(bool$autogenerate)
+    {
+        $this->autoGenerateId = $autogenerate;
     }
 
     /**
@@ -329,9 +340,9 @@ class MetaInformation implements MetaInformationInterface
     /**
      * {@inheritdoc}
      */
-    public function getDocumentKey()
+    public function getDocumentKey($entityId)
     {
-        return $this->documentName . '_' . $this->getEntityId();
+        return $this->documentName . '_' . $entityId;
     }
 
     /**
@@ -353,9 +364,9 @@ class MetaInformation implements MetaInformationInterface
     /**
      * {@inheritdoc}
      */
-    public function getIdentifierFieldName()
+    public function getIdentifierFields()
     {
-        return $this->identifier->name;
+        return $this->identifierFields;
     }
 
     /**
@@ -374,16 +385,27 @@ class MetaInformation implements MetaInformationInterface
         $this->doctrineMapperType = $doctrineMapperType;
     }
 
+
     /**
-     * {@inheritdoc}
+     * @return bool
      */
-    public function generateDocumentId()
+    public function getAutoGenerateId()
     {
-        if ($this->identifier == null) {
-            throw new SolrMappingException('No identifier is set');
+        if ($this->autoGenerateId === true) {
+            return $this->autoGenerateId;
         }
 
-        return $this->identifier->generateId;
+        if (empty($this->identifierFields)) {
+            throw new SolrMappingException('No identifier is set');
+        }
+    }
+
+    /**
+     * @param bool $autogenerate
+     */
+    public function setAutoGenerateId(bool $autogenerate)
+    {
+        $this->autoGenerateId = $autogenerate;
     }
 
     /**
