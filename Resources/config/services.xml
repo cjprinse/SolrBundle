@@ -51,6 +51,7 @@
 
         <service id="solr.meta.information.factory" class="FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory" public="true">
             <argument type="service" id="solr.mapper_driver" />
+            <argument type="service" id="doctrine" on-invalid="ignore"/>
         </service>
 
         <service id="solr.doctrine.classnameresolver.known_entity_namespaces" class="FS\SolrBundle\Doctrine\ClassnameResolver\KnownNamespaceAliases" public="true"/>

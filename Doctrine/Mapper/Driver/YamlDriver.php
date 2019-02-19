@@ -62,20 +62,22 @@ class YamlDriver implements DriverInterface
 
         $annotations = [];
 
-        if (!empty($field['nested'])) {
-            ;
-        }
-
-
 
         foreach ($fields as $name => $field) {
-            $annotations[] = new Field([
+            $annotation = new Field([
                 'name' => $name,
                 'fieldName' => $field['field'] ?? null,
                 'type' => $field['type'] ?? 'string',
-                'nestedClass' => $field['nested_class'] ?? false,
                 'boost' => $field['boost'] ?? 0,
             ]);
+
+            if (!empty($field['nested'])) {
+                $annotation->nestedClass = $field['nested']['class'] ?? null;
+                $annotation->mapper = $field['nested']['mapper'] ?? null;
+            }
+
+            $annotations[] = $annotation;
+
         }
 
         return $annotations;

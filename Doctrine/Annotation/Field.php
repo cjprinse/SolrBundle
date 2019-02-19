@@ -47,6 +47,9 @@ class Field extends Annotation
      */
     public $nestedClass;
 
+    /** @var string */
+    public $mapper;
+
     /**
      * @var array
      */

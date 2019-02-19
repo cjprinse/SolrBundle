@@ -1,8 +1,10 @@
 <?php
 namespace FS\SolrBundle\Doctrine\Mapper;
 
+use FS\SolrBundle\Doctrine\Hydration\DoctrineHydrator;
 use FS\SolrBundle\Doctrine\Mapper\Driver\DriverInterface;
 use FS\SolrBundle\Doctrine\ClassnameResolver\ClassnameResolver;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 
 /**
  * instantiates a new MetaInformation object by a given entity
@@ -15,6 +17,11 @@ class MetaInformationFactory
     private $mapperDriver = null;
 
     /**
+     * @var ManagerRegistry
+     */
+    private $doctrine;
+
+    /**
      * @var ClassnameResolver
      */
     private $classnameResolver = null;
@@ -22,9 +29,14 @@ class MetaInformationFactory
     /**
      * @param DriverInterface $mapperDriver
      */
-    public function __construct(DriverInterface $mapperDriver)
+    public function __construct(
+        DriverInterface $mapperDriver,
+        ManagerRegistry $doctrine = null
+    )
     {
         $this->mapperDriver = $mapperDriver;
+        $this->doctrine = $doctrine;
+
     }
 
     /**
@@ -77,14 +89,40 @@ class MetaInformationFactory
         $metaInformation->setNested($this->mapperDriver->isNested($entity));
 
         $fields = $this->mapperDriver->getFields($entity);
+
+        $subentityMapping = [];
+
         foreach ($fields as $field) {
             if (!$field->nestedClass) {
                 continue;
             }
 
+            if ($field->mapper === 'orm') {
+                if ($this->doctrine === null) {
+                    throw new SolrMappingException(sprintf('Doctrine mapping is configured, but doctrine is not found in entity %s', $className));
+                }
+
+                $manager = $this->doctrine->getManagerForClass($field->nestedClass);
+                $idFields = $manager->getClassMetadata($field->nestedClass)->getIdentifierFieldNames();
+
+                if (count($idFields) > 1 && $field->fieldName) {
+                    throw new SolrMappingException(sprintf('You cannot specificy fieldName, because ORM entity has %d id fields. in entity %s', count($idFields), $className));
+                }
+
+                if (count($idFields) === 1) {
+                    $subentityMapping[$field->fieldName] = $field->name;
+                } else {
+                    foreach ($idFields as $idField) {
+                        $subentityMapping[$field->name . '_' . $idField] = $field->name . '_' . $idField;
+                    }
+                }
+
+                $a =1;
+            }
+
             $nestedObjectMetainformation = $this->loadInformation($field->nestedClass);
 
-            $subentityMapping = [];
+
             $nestedFieldName = $field->name;
             foreach ($nestedObjectMetainformation->getFieldMapping() as $documentName => $fieldName) {
                 $subentityMapping[$nestedFieldName . '.' . $documentName] = $nestedFieldName . '.' . $fieldName;
