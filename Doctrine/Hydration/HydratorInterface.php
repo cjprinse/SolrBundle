@@ -19,5 +19,5 @@ interface HydratorInterface
      *
      * @return object
      */
-    public function hydrate($document, MetaInformationInterface $metaInformation);
+    public function hydrate($document, MetaInformationInterface $metaInformation, $target = null);
 } 

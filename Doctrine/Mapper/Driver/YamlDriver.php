@@ -62,6 +62,12 @@ class YamlDriver implements DriverInterface
 
         $annotations = [];
 
+        if (!empty($field['nested'])) {
+            ;
+        }
+
+
+
         foreach ($fields as $name => $field) {
             $annotations[] = new Field([
                 'name' => $name,
@@ -96,7 +102,20 @@ class YamlDriver implements DriverInterface
     {
         $config = $this->getClassConfig(get_class($entity));
 
-        return $config['id'] ?? [];
+        $identifiers = [];
+
+        foreach ($config['id'] as $key => $field) {
+            if (is_array($field)) {
+                $fieldValue = reset($field);
+                $fieldName = key($field);
+                $key = $fieldValue['field'] ?? $fieldName;
+                $identifiers[$key] = $fieldName;
+            } else {
+                $identifiers[$field] = $field;
+            }
+        }
+
+        return $identifiers;
     }
 
     /**
@@ -174,7 +193,18 @@ class YamlDriver implements DriverInterface
      */
     public function getFieldMapping($entity)
     {
-        // TODO: Implement getFieldMapping() method.
+        $fields = $this->getFields($entity);
+
+        $mapping = [];
+        foreach ($fields as $field) {
+            $mapping[$field->getNameWithAlias()] = $field->name;
+        }
+
+        foreach ($this->getIdentifierFields($entity) as $key => $field) {
+            $mapping[$key] = $field;
+        }
+
+        return $mapping;
     }
 
     /**
@@ -184,7 +214,9 @@ class YamlDriver implements DriverInterface
      */
     public function isOrm($entity)
     {
-        // TODO: Implement isOrm() method.
+        $config = $this->getClassConfig(get_class($entity));
+
+        return strtolower($config['type'] ?? '') === 'orm';
     }
 
     /**
@@ -194,7 +226,9 @@ class YamlDriver implements DriverInterface
      */
     public function isOdm($entity)
     {
-        // TODO: Implement isOdm() method.
+        $config = $this->getClassConfig(get_class($entity));
+
+        return strtolower($config['type'] ?? '') === 'odm';
     }
 
     /**

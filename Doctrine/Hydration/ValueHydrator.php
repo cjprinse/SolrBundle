@@ -12,7 +12,7 @@ use FS\SolrBundle\Doctrine\Mapper\MetaInformationInterface;
 /**
  * Maps all values of a given document on a target-entity
  */
-class ValueHydrator implements HydratorInterface
+class ValueHydrator extends AbstractHydrator implements HydratorInterface
 {
     /**
      * @var PropertyAccessorInterface[]
@@ -22,13 +22,13 @@ class ValueHydrator implements HydratorInterface
     /**
      * {@inheritdoc}
      */
-    public function hydrate($document, MetaInformationInterface $metaInformation)
+    public function hydrate($document, MetaInformationInterface $metaInformation, $target = null)
     {
         if (!isset($this->cache[$metaInformation->getDocumentName()])) {
             $this->cache[$metaInformation->getDocumentName()] = array();
         }
 
-        $targetEntity = $metaInformation->getEntity();
+        $targetEntity = $target ?? $this->createEmpty($metaInformation->getClassName());
 
         $reflectionClass = new \ReflectionClass($targetEntity);
         foreach ($document as $property => $value) {

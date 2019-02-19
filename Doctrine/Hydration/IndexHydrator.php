@@ -7,7 +7,7 @@ use FS\SolrBundle\Doctrine\Mapper\MetaInformationInterface;
 /**
  * Hydrates blank Entity from Document
  */
-class IndexHydrator implements HydratorInterface
+class IndexHydrator extends AbstractHydrator implements HydratorInterface
 {
     /**
      * @var HydratorInterface
@@ -25,13 +25,10 @@ class IndexHydrator implements HydratorInterface
     /**
      * {@inheritdoc}
      */
-    public function hydrate($document, MetaInformationInterface $metaInformation)
+    public function hydrate($document, MetaInformationInterface $metaInformation, $target = null)
     {
-        $sourceTargetEntity = $metaInformation->getEntity();
-        $targetEntity = clone $sourceTargetEntity;
+        $target = $target ?? $this->createEmpty($metaInformation->getClassName());
 
-        $metaInformation->setEntity($targetEntity);
-
-        return $this->valueHydrator->hydrate($document, $metaInformation);
+        return $this->valueHydrator->hydrate($document, $metaInformation, $target);
     }
 } 

@@ -16,6 +16,9 @@
             <argument type="service" id="solr.doctrine.entity_mapper"/>
         </service>
 
+        <service id="FS\SolrBundle\SolrInterface" alias="solr.client"/>
+        <service id="FS\SolrBundle\Doctrine\Mapper\MetaInformationInterface" alias="solr.client"/>
+
         <service id="solr.client.adapter" class="Solarium\Client">
             <factory service="solr.client.adapter.builder" method="build" />
         </service>

@@ -2,6 +2,7 @@
 
 namespace FS\SolrBundle;
 
+use FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory;
 use FS\SolrBundle\Query\AbstractQuery;
 use FS\SolrBundle\Query\QueryBuilderInterface;
 use FS\SolrBundle\Repository\Repository;
@@ -53,4 +54,9 @@ interface SolrInterface
      * @return QueryBuilderInterface
      */
     public function createQueryBuilder($entity): QueryBuilderInterface;
+
+    /**
+     * @return MetaInformationFactory
+     */
+    public function getMetaFactory(): MetaInformationFactory;
 }

@@ -189,11 +189,10 @@ class SolrQuery extends AbstractQuery
     {
         $searchTerms = array_merge($this->searchTerms, $this->childQueries);
 
-        $keyField = $this->getMetaInformation()->getDocumentKey();
-
-        $documentLimitation = $this->createFilterQuery('id')->setQuery('id:'.$keyField.'*');
-
-        $this->addFilterQuery($documentLimitation);
+//        $keyField = $this->getMetaInformation()->g();
+//        $documentLimitation = $this->createFilterQuery('id')->setQuery('id:'.$keyField.'*');
+//
+//        $this->addFilterQuery($documentLimitation);
         if ($this->customQuery) {
             parent::setQuery($this->customQuery);
 
@@ -217,13 +216,13 @@ class SolrQuery extends AbstractQuery
         $termCount = 1;
         foreach ($searchTerms as $fieldName => $fieldValue) {
 
-            if ($fieldName == 'id') {
-                $this->getFilterQuery('id')->setQuery('id:' . $fieldValue);
-
-                $termCount++;
-
-                continue;
-            }
+//            if ($fieldName == 'id') {
+//                $this->getFilterQuery('id')->setQuery('id:' . $fieldValue);
+//
+//                $termCount++;
+//
+//                continue;
+//            }
 
             $fieldValue = $this->querifyFieldValue($fieldValue);
 

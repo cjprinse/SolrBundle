@@ -35,7 +35,6 @@ class FSSolrExtension extends Extension
         $this->setupDoctrineListener($config, $container);
         $this->setupDoctrineConfiguration($config, $container);
         $this->setupMapperDriverConfiguration($config, $container);
-
     }
 
     /**

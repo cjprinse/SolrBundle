@@ -2,6 +2,7 @@
 namespace FS\SolrBundle\Repository;
 
 use FS\SolrBundle\Doctrine\Hydration\HydrationModes;
+use FS\SolrBundle\Doctrine\Mapper\MetaInformationFactory;
 use FS\SolrBundle\Doctrine\Mapper\MetaInformationInterface;
 use FS\SolrBundle\Query\FindByDocumentNameQuery;
 use FS\SolrBundle\Query\FindByIdentifierQuery;
@@ -30,16 +31,14 @@ class Repository implements RepositoryInterface
      */
     protected $hydrationMode = '';
 
-    /**
-     * @param SolrInterface            $solr
-     * @param MetaInformationInterface $metaInformation
-     */
-    public function __construct(SolrInterface $solr, MetaInformationInterface $metaInformation)
+
+    public function __construct(SolrInterface $solr, string $objectClass)
     {
         $this->solr = $solr;
-        $this->metaInformation = $metaInformation;
+        $this->metaInformation = $solr->getMetaFactory()->loadInformation($objectClass);
 
-        $this->hydrationMode = HydrationModes::HYDRATE_DOCTRINE;
+//        $this->hydrationMode = HydrationModes::HYDRATE_DOCTRINE;
+        $this->hydrationMode = HydrationModes::HYDRATE_INDEX;
     }
 
     /**
@@ -85,7 +84,7 @@ class Repository implements RepositoryInterface
      */
     public function findBy(array $args)
     {
-        $query = $this->solr->createQuery($this->metaInformation->getEntity());
+        $query = $this->solr->createQuery($this->metaInformation->getClassName());
         $query->setHydrationMode($this->hydrationMode);
         $query->setRows(100000);
         $query->setUseAndOperator(true);

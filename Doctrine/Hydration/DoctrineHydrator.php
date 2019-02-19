@@ -11,7 +11,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  *
  * The hydration is necessary because fields, which are not declared as solr-field, will not populate in the result.
  */
-class DoctrineHydrator implements HydratorInterface
+class DoctrineHydrator extends AbstractHydrator implements HydratorInterface
 {
 
     /**
@@ -56,8 +56,10 @@ class DoctrineHydrator implements HydratorInterface
     /**
      * {@inheritdoc}
      */
-    public function hydrate($document, MetaInformationInterface $metaInformation)
+    public function hydrate($document, MetaInformationInterface $metaInformation, $target = null)
     {
+        $target = $target ?? $this->createEmpty($metaInformation->getClassName());
+
         $entityId = $this->valueHydrator->removePrefixedKeyValues($document['id']);
 
         $doctrineEntity = null;
@@ -74,9 +76,9 @@ class DoctrineHydrator implements HydratorInterface
         }
 
         if ($doctrineEntity !== null) {
-            $metaInformation->setEntity($doctrineEntity);
+            $target = $doctrineEntity;
         }
 
-        return $this->valueHydrator->hydrate($document, $metaInformation);
+        return $this->valueHydrator->hydrate($document, $metaInformation, $target);
     }
 }
